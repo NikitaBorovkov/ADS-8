@@ -1,62 +1,21 @@
-// Copyright 2021 NNTU-CS
-#include "train.h"
+// Copyright 2022 NNTU-CS
+#ifndef INCLUDE_TRAIN_H_
+#define INCLUDE_TRAIN_H_
 
-Train::Cage* Train::create(bool light) {
-    Cage* cage = new Cage;
-    cage->light = light;
-    cage->next = nullptr;
-    cage->prev = nullptr;
-    return cage;
-}
+class Train {
+ private:
+  struct Cage {
+    bool light; // состояние лампочки
+    Cage *next;
+    Cage *prev;
+  };
+  int countOp; // счетчик шагов (число переходов из вагона в вагон)
+  Cage *first; // точка входа в поезд (первый вагон)
+ public:
+  Train();
+  void addCage(bool light); // добавить вагон с начальным состоянием лампочки
+  int getLength();          // вычислить длину поезда
+  int getOpCount();         // вернуть число переходов (из вагона в вагон)
+};
+#endif  // INCLUDE_TRAIN_H_
 
-void Train::addCage(bool light) {
-    if (last && first) {
-        last->next = create(light);
-        last->next->prev = last;
-        last = last->next;
-        first->prev = last;
-        last->next = first;
-    } else {
-        first = create(light);
-        last = first;
-    }
-}
-
-int Train::getLength() {
-    int len = 0;
-    first->light = true;
-    Cage* temp = first;
-    while (true) {
-        len++;
-        for (int i = 0; i < len; ++i) {
-            temp = temp->next;
-            countOp++;
-        }
-        if (temp->light) {
-            temp->light = false;
-            for (int i = 0; i < len; ++i) {
-                temp = temp->prev;
-                countOp++;
-            }
-        } else {
-            while (!temp->light) {
-                len++;
-                temp = temp->next;
-                countOp++;
-            }
-            temp->light = false;
-            for (int i = 0; i < len; ++i) {
-                temp = temp->prev;
-                countOp++;
-            }
-        }
-        if (!temp->light) {
-            break;
-        }
-    }
-    return len;
-}
-
-int Train::getOpCount() {
-    return countOp;
-}
